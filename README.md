@@ -2,22 +2,40 @@
 
 Система состоит из двух микросервисов: AUTH и NOTIFICATION. AUTH отвечает за регистрацию, авторизацию и управление пользователями (CRUD). NOTIFICATION отправляет уведомления на email при создании, изменении или удалении пользователей. Проект использует Java, Spring Boot, Spring Security, Hibernate, Spring Data JPA, Flyway, MySQL, Docker. JWT используется для аутентификации, роли USER и ADMIN определяют права доступа. USER может изменять только свой аккаунт, ADMIN имеет полный доступ.
 
-
-Перед запуском необходимо создать файл .env в корне проекта и указать в нём значения:
+Для запуска проекта необходимо установить Docker и Docker Compose. 
+Клонируйте репозиторий и создайте в корне проекта файл .env на основе примера нижу. 
+В .env необходимо указать свои данные подключения к базе и параметры SMTP для отправки почты. Пример значений:
 
 # Настройки MySQL
-DB_URL=jdbc:mysql://db:3306/auth_db
+DB_URL=jdbc:mysql://mysql-db:3306/users?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
 DB_USERNAME=root
 DB_PASSWORD=root_password
-
-# JWT
-JWT_SECRET=your_jwt_secret
 
 # Настройки почты (SMTP)
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
 MAIL_USERNAME=your_email@gmail.com
 MAIL_PASSWORD=your_email_password
+
+После подготовки .env выполните команду:
+
+docker-compose up --build
+
+Это соберет и запустит все сервисы. AUTH-сервис будет доступен по адресу http://localhost:8080, NOTIFICATION-сервис — по адресу http://localhost:8081. 
+MySQL будет доступна на localhost:3307 с учетными данными из .env.
+
+Для остановки сервисов используйте:
+
+docker-compose down
+
+Чтобы удалить данные базы, используйте:
+
+docker-compose down -v
+
+Все миграции базы данных выполняются автоматически через Flyway при старте AUTH-сервиса. В базе будут созданы все необходимые таблицы и добавлены тестовые данные. 
+AUTH-сервис реализует REST CRUD для пользователей с разделением ролей USER и ADMIN, а NOTIFICATION-сервис отправляет уведомления на почту при создании, изменении или удалении пользователей.
+Перед запуском необходимо создать файл .env в корне проекта и указать в нём значения:
+
 
 Настройка и запуск:
 
@@ -128,34 +146,3 @@ AUTH отправляет события (создание/изменение/у
 
 Код соблюдает SOLID, роли разделены в Spring Security, миграции схемы управляются Flyway, 
 Docker Compose обеспечивает развёртку всей системы.
-
-Для запуска проекта необходимо установить Docker и Docker Compose. 
-Клонируйте репозиторий и создайте в корне проекта файл .env на основе примера нижу. 
-В .env необходимо указать свои данные подключения к базе и параметры SMTP для отправки почты. Пример значений:
-
-DB_URL=jdbc:mysql://mysql-db:3306/users?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-DB_USERNAME=root
-DB_PASSWORD=your_root_password
-MAIL_HOST=smtp.gmail.com
-MAIL_PORT=587
-MAIL_USERNAME=your_email@gmail.com
-MAIL_PASSWORD=your_email_password
-
-После подготовки .env выполните команду:
-
-docker-compose up --build
-
-Это соберет и запустит все сервисы. AUTH-сервис будет доступен по адресу http://localhost:8080, NOTIFICATION-сервис — по адресу http://localhost:8081. 
-MySQL будет доступна на localhost:3307 с учетными данными из .env.
-
-Для остановки сервисов используйте:
-
-docker-compose down
-
-Чтобы удалить данные базы, используйте:
-
-docker-compose down -v
-
-Все миграции базы данных выполняются автоматически через Flyway при старте AUTH-сервиса. 
-В базе будут созданы все необходимые таблицы и добавлены тестовые данные. 
-AUTH-сервис реализует REST CRUD для пользователей с разделением ролей USER и ADMIN, а NOTIFICATION-сервис отправляет уведомления на почту при создании, изменении или удалении пользователей.
